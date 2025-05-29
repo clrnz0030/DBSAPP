@@ -1,8 +1,8 @@
 <?php
     require_once('classes/database.php');
     $con = new database();
- 
-    $sweetAlertConfig = "";
+    $sweetAlertConfig="";
+
  
     if (isset($_POST['register'])){
      

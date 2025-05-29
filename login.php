@@ -1,3 +1,49 @@
+<?php 
+
+session_start();
+if(isset($_SESSION['admin_ID'])){
+  header('Location: index.php');
+  exit();
+}
+require_once('./classes/database.php');
+$sweetAlertConfig="";
+$con=new database();
+
+if(isset($_POST['login'])){
+  $username=$_POST['username'];
+  $password=$_POST['password'];
+  $user=$con->loginUser($username,$password);
+
+  if($user){
+    $_SESSION['admin_ID']=$user['admin_id'];
+    $_SESSION['admin_FN']=$user['admin_FN'];
+
+     $sweetAlertConfig = "
+        <script>
+        Swal.fire({
+          icon: 'success',
+          title: 'Login Successful',
+          text: 'Welcome, ". addslashes(htmlspecialchars($user['admin_FN'])) ."!',
+          confirmButtonText: 'Continue'
+        }).then(() => {
+          window.location.href = 'index.php';
+        });
+        </script>
+        ";
+  }else{
+     $sweetAlertConfig = "
+        <script>
+        Swal.fire({
+          icon: 'error',
+          title: 'Login Failed',
+          text: 'Invalid username or password.',
+        });
+        </script>
+        ";
+  }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,6 +66,9 @@
         <input type="password" name="password" id="password" class="form-control" placeholder="Enter your password" required>
       </div>
       <button type="submit" name="login" class="btn btn-primary w-100">Login</button>
+        <script src="./bootstrap-5.3.3-dist/js/bootstrap.js"></script>
+  <script src="./package/dist/sweetalert2.js"></script>
+  <?php echo $sweetAlertConfig; ?>
     </form>
   </div>
 
