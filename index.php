@@ -1,27 +1,23 @@
 <?php
  
-session_start();
-if (!isset($_SESSION['admin_ID'])){
-header('location: login.php');
-exit();
+  session_start();
+  if (!isset($_SESSION['admin_ID'])) {
+    header('Location: login.php');
+    exit();
+  }
  
- 
-}
     require_once('classes/database.php');
-    $con = new database();
+    $con = new database1();
  
     $data = $con->opencon();
  
- 
- $sweetAlertConfig = "";
+    $sweetAlertConfig = "";
  
     if (isset($_POST['add_student'])){
-     
- 
       $firstname = $_POST['first_name'];
       $lastname = $_POST['last_name'];
-       $email = $_POST['email'];
-       $admin_id = $_SESSION['admin_ID'];
+      $email = $_POST['email'];
+      $admin_id = $_SESSION['admin_ID'];
  
       $userID = $con->addStudent($firstname, $lastname, $email, $admin_id);
      
@@ -31,34 +27,28 @@ exit();
         Swal.fire({
           icon: 'success',
           title: 'Registration Successful',
-          text: 'You have successfully registered as an admin.',
+          text: 'You have successfully registered a new student.',
           confirmButtonText: 'OK'
         }).then(() => {
           window.location.href = 'login.php';
         });
-        </script>
-        ";
+        </script>";
       } else {
-        $sweetAlertConfig = "
-         <script>
+        $sweetAlertConfig = "<script>
         Swal.fire({
           icon: 'error',
           title: 'Registration Failed',
           text: 'An error occurred during registration. Please try again.',
           confirmButtonText: 'OK'
         });
-        </script>"
-       
-        ;
+        </script>";
       }
     }
  
-     if (isset($_POST['add_course'])){
+    if (isset($_POST['add_course'])){
      
- 
       $course_name = $_POST['course_name'];
-     
-       $admin_id = $_SESSION['admin_ID'];
+      $admin_id = $_SESSION['admin_ID'];
  
       $userID = $con->addCourse($course_name, $admin_id);
      
@@ -68,36 +58,32 @@ exit();
         Swal.fire({
           icon: 'success',
           title: 'Registration Successful',
-          text: 'You have successfully registered as an admin.',
+          text: 'You have successfully registered a new student.',
           confirmButtonText: 'OK'
         }).then(() => {
           window.location.href = 'login.php';
         });
-        </script>
-        ";
+        </script>";
       } else {
-        $sweetAlertConfig = "
-         <script>
+        $sweetAlertConfig = "<script>
         Swal.fire({
           icon: 'error',
           title: 'Registration Failed',
           text: 'An error occurred during registration. Please try again.',
           confirmButtonText: 'OK'
         });
-        </script>"
-       
-        ;
+        </script>";
       }
     }
- 
-?>
+    
+    ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Student & Course CRUD (PHP PDO)</title>
   <link rel="stylesheet" href="./bootstrap-5.3.3-dist/css/bootstrap.css">
-    <link rel="stylesheet" href="./package/dist/sweetalert2.css">
+  <link rel="stylesheet" href="./package/dist/sweetalert2.css">
 </head>
 <body class="bg-light">
   <div class="container py-5">
@@ -109,21 +95,35 @@ exit();
           <th>ID</th>
           <th>Full Name</th>
           <th>Email</th>
-          <th>Course</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td>1</td>
-          <td>Jei Q. Pastrana</td>
-          <td>jei@example.com</td>
-          <td>DIT</td>
+          <?php
+          $students = $con->getStudent();
+          foreach($students as $student) {
+?>
+        <tr>
+          <td><?php echo $student['student_id'] ?></td>
+          <td><?php echo $student['student_FN'] . ' ' . $student['student_LN'] ?></td>
+          <td><?php echo $student['student_email'] ?></td>
+ 
           <td>
-            <button class="btn btn-sm btn-warning">Edit</button>
+            <div class="btn-group" role="group">
+              <form action="update_student.php" method="POST">
+                <input type="hidden" name="student_id" value="<?php echo $student ['student_id']?>">
+                  <button type="submit" class="btn btn-sm btn-warning">Edit</button>
+ 
+          </form>
+          </div>
+ 
             <button class="btn btn-sm btn-danger">Delete</button>
           </td>
         </tr>
+        <?php
+          }
+          ?>
       </tbody>
     </table>
  
@@ -138,7 +138,8 @@ exit();
         </tr>
       </thead>
       <tbody>
-        <tr>
+       <tr>
+          <td></td>
           <td>1</td>
           <td>BS Information Technology</td>
           <td>
@@ -186,14 +187,13 @@ exit();
           <input type="text" name="first_name" class="form-control mb-2" placeholder="First Name" required>
           <input type="text" name="last_name" class="form-control mb-2" placeholder="Last Name" required>
           <input type="email" name="email" class="form-control mb-2" placeholder="Email" required>
-         
         </div>
         <div class="modal-footer">
           <button type="submit" name="add_student">Add</button>
         </div>
-         <script src="./bootstrap-5.3.3-dist/js/bootstrap.js"></script>
-<script src="./package/dist/sweetalert2.js"></script>
-  <?php echo $sweetAlertConfig; ?>
+        <script src="./bootstrap-5.3.3-dist/js/bootstrap.js"></script>
+  <script src="./package/dist/sweetalert2.js"></script>
+    <?php echo $sweetAlertConfig; ?>
       </form>
     </div>
   </div>
@@ -219,7 +219,7 @@ exit();
   <!-- Enroll Student Modal -->
   <div class="modal fade" id="enrollStudentModal" tabindex="-1">
     <div class="modal-dialog">
-      <form class="modal-content" method="POST" action="enroll_student.php">
+      <form class="modal-content" method="POST" action="">
         <div class="modal-header">
           <h5 class="modal-title">Enroll Student to Course</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -243,112 +243,9 @@ exit();
       </form>
     </div>
   </div>
- 
   <script src="./bootstrap-5.3.3-dist/js/bootstrap.js"></script>
- 
- 
+  <script src="./package/dist/sweetalert.js"></script>
+  <?php echo $sweetAlertConfig; ?>
+
 </body>
 </html>
- 
- 
-<?php
- 
-class database {
- 
-    function opencon() {
-        return new PDO(
-            'mysql:host=localhost;dbname=dbs_app',
-            username: 'root',
-            password: ''
-        );
-    }
- 
-    function signupUser($firstname, $lastname, $username, $email, $password) {
-        $con = $this->opencon();
- 
-        try {
-            $con->beginTransaction();
- 
-            $stmt = $con->prepare("INSERT INTO Admin (admin_FN, admin_LN, admin_username, admin_email, admin_password) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$firstname, $lastname, $username, $email, $password]);
- 
-            $userId = $con->lastInsertId();
-            $con->commit();
- 
-            return $userId;
-        } catch (PDOException $e) {
-            $con->rollBack();
-            return false;
-        }
-    }
-     function isUsernameExists ($username) {
-        $con = $this->opencon();
-        $stmt = $con->prepare("SELECT COUNT(*) FROM Admin WHERE admin_username = ?");
-        $stmt->execute([$username]);
-        $count = $stmt->fetchColumn();
-        return $count > 0;
-        }
- 
-        function isEmailExists ($email) {
-        $con = $this->opencon();
-        $stmt = $con->prepare("SELECT COUNT(*) FROM Admin WHERE admin_email = ?");
-        $stmt->execute([$email]);
-        $count = $stmt->fetchColumn();
-        return $count > 0;
-        }
- 
-    function loginUser($username, $password) {
-    $con = $this->opencon();
-    $stmt = $con->prepare("SELECT * FROM Admin WHERE admin_username = ?");
-    $stmt->execute([$username]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-    if ($user && password_verify($password, $user['admin_password'])) {
-    return $user;
-    }
- 
-    return false;
- }
- 
-    function addStudent($firstname, $lastname, $email, $admin_id) {
-        $con = $this->opencon();
- 
-        try {
-            $con->beginTransaction();
- 
-            $stmt = $con->prepare("INSERT INTO students (student_FN, student_LN,  student_email, admin_id) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$firstname, $lastname, $email, $admin_id]);
- 
-            $userId = $con->lastInsertId();
-            $con->commit();
- 
-            return $userId;
-        } catch (PDOException $e) {
-            $con->rollBack();
-            return false;
-        }
-    }
- 
- function addCourse($course_name, $admin_id) {
-        $con = $this->opencon();
- 
-        try {
-            $con->beginTransaction();
- 
-            $stmt = $con->prepare("INSERT INTO courses (course_name,  admin_id) VALUES (?, ?)");
-            $stmt->execute([$course_name, $admin_id]);
- 
-            $userId = $con->lastInsertId();
-            $con->commit();
- 
-            return $userId;
-        } catch (PDOException $e) {
-            $con->rollBack();
-            return false;
-        }
-    }
- 
- 
- 
- 
-}
- 

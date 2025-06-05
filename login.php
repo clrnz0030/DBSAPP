@@ -7,7 +7,7 @@ if(isset($_SESSION['admin_ID'])){
 }
 require_once('./classes/database.php');
 $sweetAlertConfig="";
-$con=new database();
+$con=new database1();
 
 if(isset($_POST['login'])){
   $username=$_POST['username'];
